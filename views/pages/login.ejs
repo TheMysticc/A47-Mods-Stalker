@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="icon" href="/GameModLogo.png">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Game Moderation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+
+    <!-- Custom styles for this template-->
+    <link href="/stylesheets/mains.min.css" rel="stylesheet">
+
+</head>
+
+<style>
+    .defaultButton {
+        border-color: transparent;
+        background-color: red;
+        border-radius: .35rem;
+        border-color: red;
+        color: white;
+    }
+    a:hover {
+        color: #ff0000
+    }
+    .innerCardButton {
+        border-radius: 0.2rem;
+        border-top-left-radius: 0.2rem;
+        border-top-right-radius: 0.2rem;
+        border-bottom-right-radius: 0.2rem;
+        border-bottom-left-radius: 0.2rem;
+        float: right;
+        border-color: transparent;
+        background-color: red;
+        border-color: red;
+        color: white;
+    }
+
+    .fadeIn {
+        -webkit-animation-duration: 1s;
+        animation-duration: 1s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        animation:fadeIn 1s linear;
+    }
+
+    .fadeOut {
+        -webkit-animation-duration: 2s;
+        animation-duration: 2s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        animation:fadeout 2s linear;
+    }
+
+    @keyframes fadeout {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-1000px);
+        }
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            display: none;
+        }
+        100% {
+            opacity: 1;
+            display: block;
+        }
+    }
+
+</style>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row">
+
+                        
+
+                    
+                    <!-- Content Row -->
+                    <div class="row" style="margin:0 auto;">
+
+                        <!-- Content Column -->
+                        <div style="display:inline-block; vertical-align: middle; float: none;">
+                            <!-- Online Targets -->
+                            <div class="card shadow mb-4" style="height: 100%; width: 100%; overflow: hidden;">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary" style="text-align: center;">Firestone Game Moderation LTAA Bans Uploader - Login
+                                    </h6>
+                                </div>
+                                <div class="card-body" style="display: inline-block;" id="usernameFrame">
+                                    <a>Username:</a>
+                                    <input class="form-control form-control-user" id="usernameField" autocomplete="off"></input>
+                                    <p></p>
+                                    <button class="innerCardButton" id="getAccessCode">Next</button>
+                                    <div  id="accessCodeFrame" hidden>
+                                        <a>Password:</a>
+                                        <input class="form-control form-control-user" type="password" id="accessCodeField"></input>
+                                        <p></p>
+                                        <button class="innerCardButton" id="loginBtn">Login</button>
+                                    </div>
+                                    <p class="unselectable" style="color: transparent;">Notice: Due to alternative methods being used to determine whether the user is ingame, list accuracy is not guaranteed.</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include ("../partials/footer.html") %>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+
+
+     <!-- Bootstrap core JavaScript-->
+     <%- include ("../scripts/vendor/jquery/jquery.min.ejs") %>
+     <%- include ("../scripts/vendor/bootstrap/js/bootstrap.bundle.min.ejs") %>
+ 
+     <!-- Core plugin JavaScript-->
+     <%- include ("../scripts/vendor/jquery-easing/jquery.easing.min.ejs") %>
+     <!-- Custom scripts for all pages-->
+     <%- include ("../scripts/main.ejs") %>
+     <!-- HTTP Requests API -->
+     <%- include ("../scripts/requestsAPI.ejs") %>
+     <!-- Page Scripts -->
+     <%- include ("../scripts/pageScripts/login.ejs") %>
+</body>
+
+</html>

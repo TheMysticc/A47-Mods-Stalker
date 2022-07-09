@@ -1,0 +1,74 @@
+<script>
+
+    //-- Functions
+    function getElementById(elementId){
+        return document.getElementById(elementId)
+    }
+
+    function modifyHiddenState(targetElement, value){
+        getElementById(targetElement).hidden = value
+    }
+
+    function modifyElement(targetElement,targetProperty, newValue){
+        getElementById(targetElement)[targetProperty] = newValue
+    }
+
+    async function validateString(string){
+        if(string === "" || string === " " || string === "  " || string === "   " || string === "    " || string === "     "){
+            return false
+        } else {
+            return true
+        }
+    }
+
+    getElementById("getAccessCode").addEventListener("click", async function(){  
+        const usernameField = getElementById("usernameField")
+        if(await validateString(usernameField.value) === false) return alert(`Please provide a valid username...`)
+        usernameField.disabled = true
+        modifyElement("getAccessCode", "disabled", true)
+        const responseData = await window.Api.post('/validateUsername', {
+            body: {
+                username: usernameField.value,
+            }
+        })
+        if(responseData.message === "Success"){
+            modifyHiddenState("getAccessCode", true)
+            modifyHiddenState("accessCodeFrame", false)
+            getElementById("accessCodeFrame").classList.add("fadeIn")
+        } else {
+            usernameField.disabled = false
+            modifyElement("getAccessCode", "disabled", false)
+            alert(responseData.message)
+        }
+        
+    });
+
+    getElementById("loginBtn").addEventListener("click", async function(){  
+        const usernameField = getElementById("usernameField")
+        const accessCodeField = getElementById("accessCodeField")
+        if(await validateString(usernameField.value) === false) return alert(`Please provide a valid username...`)
+        accessCodeField.disabled = true
+        modifyElement("loginBtn", "disabled", true)
+        const responseData = await window.Api.post('/validateLogin', {
+            body: {
+                username: usernameField.value,
+                password: accessCodeField.value
+            }
+        })
+        if(responseData.message === "Success"){
+            window.location.reload()
+        } else {
+            accessCodeField.disabled = false
+            modifyElement("loginBtn", "disabled", false)
+            alert(responseData.message)
+        }
+        
+    });
+
+    //-- Animation Handler
+    $('body').on('webkitAnimationEnd', function(e){
+        var animName = e.originalEvent.animationName;
+        
+    });
+
+</script>

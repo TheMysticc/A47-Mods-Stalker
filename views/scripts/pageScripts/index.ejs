@@ -1,0 +1,165 @@
+<script>
+    //-- WebSockets
+    async function connectToServer() {
+        var HOST = location.origin.replace(/^http/, 'ws')
+        const ws = new WebSocket(HOST);
+        return new Promise((resolve, reject) => {
+            const timer = setInterval(() => {
+                if(ws.readyState === 1) {
+                    clearInterval(timer)
+                    resolve(ws);
+                }
+            }, 10);
+        });
+    }
+    //-- Core components
+    const pendingBansTbl = document.getElementById("pendingBansTbl")
+    let pendingBans = []
+    let isCopying = false
+    //-- Functions
+    function getElementById(elementId){
+        return document.getElementById(elementId)
+    }
+
+    function modifyHiddenState(targetElement, value){
+        getElementById(targetElement).hidden = value
+    }
+
+    function modifyElement(targetElement,targetProperty, newValue){
+        getElementById(targetElement)[targetProperty] = newValue
+    }
+
+    async function createElement(username, proof){
+        //-- List Row
+        let listRow = document.createElement("tr")
+        //-- Username
+        let usernameField = document.createElement("td")
+        usernameField.innerText = username
+        listRow.appendChild(usernameField)
+        //-- Proof
+        let proofField = document.createElement("td")
+        proofField.innerText = proof
+        listRow.appendChild(proofField)
+        //-- Remove
+        let removeField = document.createElement("td")
+        removeField.innerHTML = `<strong>Remove</strong>`
+        removeField.style = "cursor: pointer; text-align: center;"
+        listRow.appendChild(removeField)
+        //-- Adding Row to the List
+        pendingBansTbl.appendChild(listRow)
+        return [listRow,removeField]
+    }
+    //-- Main Code
+    async function getCookies(){
+        const data = await window.Api.get("/getToken")
+        if(data.sessionToken){
+            return data.sessionToken
+        }
+        return ""
+    }
+
+    async function validateString(string){
+        if(string === "" || string === " " || string === "  " || string === "   " || string === "    " || string === "     "){
+            return false
+        } else {
+            return true
+        }
+    }
+
+    getElementById("dismissBtn").addEventListener("click", async function(){
+        modifyHiddenState(`uploadStatus`, true)
+    })
+
+    async function checkForDuplicates(username){
+        for(let ban of pendingBans){
+            if(ban && ban.username){
+                if((String(ban.username).toLowerCase()) === (String(username).toLowerCase())){
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    async function removeTableElement(username){
+        for(let ban of pendingBans){
+            if(ban && ban.username){
+                if((String(ban.username).toLowerCase()) === (String(username).toLowerCase())){
+                    ban.tableElement.remove()
+                    pendingBans.splice(pendingBans.indexOf(ban),(pendingBans.indexOf(ban) + 1))
+                }
+            }
+        }
+    }
+
+    
+
+
+    document.addEventListener('DOMContentLoaded', async function() {
+       const ws = await connectToServer();
+        
+        /*document.body.onmousemove = (evt) => {
+            const messageBody = { x: evt.clientX, y: evt.clientY };
+            ws.send(JSON.stringify(messageBody));
+        };*/
+
+        const restoreData = localStorage.getItem("lostData")
+        if(restoreData){
+            
+            localStorage.removeItem("lostData")
+        }
+
+        getElementById("decryptBtn").addEventListener("click", async function(){
+            ws.send(JSON.stringify({
+                sessionToken: "e",//await getCookies(),
+                action: "Decrypt",
+                data: getElementById("dataToSend").value,
+            }))
+        })
+
+        getElementById("encryptBtn").addEventListener("click", async function(){
+            ws.send(JSON.stringify({
+                sessionToken: "e",//await getCookies(),
+                action: "Encrypt",
+                data: getElementById("dataToSend").value,
+            }))
+        })
+        
+        getElementById("copyData").addEventListener("click", async function(){
+            const resultText = getElementById("resultText")
+            const originalText = resultText.value
+            if(originalText === ""){
+                alert(`There is nothing to copy!`)
+            } else {
+                if(isCopying === false){
+                    isCopying = true
+                    navigator.clipboard.writeText(originalText);
+                    resultText.value = originalText + " [COPIED TO CLIPBOARD]"
+                    setTimeout(function(){
+                        resultText.value = originalText
+                        isCopying = false
+                    }, 1000)
+                }
+            }
+        })
+
+        ws.onmessage = (webSocketMessage) => {
+            const socketData = JSON.parse(webSocketMessage.data);
+            if(socketData.action === "updateResult"){
+               getElementById("resultText").value = socketData.data
+            }
+        };
+
+
+
+        ws.addEventListener('close', function (event) {
+            if(pendingBans.length > 0){
+                localStorage.setItem("lostData", JSON.stringify(pendingBans))
+            }
+        });
+
+    });
+
+    
+    
+</script>
