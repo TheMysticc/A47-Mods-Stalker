@@ -4,10 +4,7 @@ const path = require('path');
 const { Server } = require('ws');
 const PORT = process.env.PORT || 5636
 const clients = new Map();
-const allowedUsers = require('./modules/accessManagement')
-const sendAccessCode = require('./modules/webhookSender')
 const cookieParser = require('cookie-parser')
-const dictionary = require('./modules/dictionary')
 
 
 dotenv.config();
@@ -25,15 +22,6 @@ const server = express()
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))  
   .set('view engine', 'ejs')
-  .post('/api/validateUsername', async function (req, res, next) {
-    const body = req.body
-    for(let username of Object.keys(allowedUsers)){
-      if((String(username).toLowerCase()) === (String(body.username).toLowerCase())){
-        return res.send({message: "Success", status: 200}).status(200)
-      }
-    }
-    return res.send({message: "Invalid Username", status: 401}).status(401)
-  })
   .post('/api/validateLogin', async function (req, res, next) {
     const body = req.body
     
@@ -44,20 +32,16 @@ const server = express()
       return finalTime
     }
 
-    for(let username of Object.keys(allowedUsers)){
-      if((String(username).toLowerCase()) === (String(body.username).toLowerCase())){
-        if(body.password === allowedUsers[username]){
-          const cookie = await uuidv4()
-          clients.set(cookie, {
-            cookie: cookie,
-            username: (String(body.username).toLowerCase()),
-            sessionExpires: await getExpiryTime(1)
-          })
-          res.cookie('sessionToken',cookie, { maxAge: 86400000, httpOnly: true })
-          return res.send({message: "Success", status: 200}).status(200)
-        }
-      }
+    if(body.password === "0239"){
+      const cookie = await uuidv4()
+      clients.set(cookie, {
+        cookie: cookie,
+        sessionExpires: await getExpiryTime(1)
+      })
+      res.cookie('sessionToken',cookie, { maxAge: 86400000, httpOnly: true })
+      return res.send({message: "Success", status: 200}).status(200)
     }
+
     return res.send({message: "Invalid Password", status: 401}).status(401)
   })
   .use(function (req, res, next) {
@@ -66,8 +50,7 @@ const server = express()
     }
     var cookie = req.cookies.sessionToken;
     if (cookie === undefined) {
-      next()
-      //return res.render('pages/login')
+      return res.render('pages/login')
     } else {
       const cookieData = clients.get(cookie)
       if(cookieData){
@@ -111,10 +94,10 @@ wss.on('connection', (ws) => {
           if(cookieData.sessionExpires > (Math.round((new Date()).getTime() / 1000))){
             return true
           } else {
-            return true//false
+            return false
           }
         } else {
-          return true//false
+          return false
         }
       }
 

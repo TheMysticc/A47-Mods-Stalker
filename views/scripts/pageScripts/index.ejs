@@ -66,10 +66,6 @@
         }
     }
 
-    getElementById("dismissBtn").addEventListener("click", async function(){
-        modifyHiddenState(`uploadStatus`, true)
-    })
-
     async function checkForDuplicates(username){
         for(let ban of pendingBans){
             if(ban && ban.username){
