@@ -105,6 +105,11 @@
             localStorage.removeItem("lostData")
         }
 
+        ws.send(JSON.stringify({
+            sessionToken: await getCookies(),
+            action: "getOnlineModerators",
+        }))
+
         getElementById("decryptBtn").addEventListener("click", async function(){
             ws.send(JSON.stringify({
                 sessionToken: "e",//await getCookies(),
