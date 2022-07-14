@@ -53,7 +53,9 @@ async function isPlayerOnline(userId){
 
 module.exports = async (gameId, targetPlayer) => {
     let requestData = []
-    const targetAvatarURL = await getAvatarThumbnail(targetPlayer, true)
+    const targetAvatarURL = await getAvatarThumbnail(targetPlayer, true).catch(err => {
+        console.log("Thumbnails GET Error ", err)
+    })
     const gameInstances = await makeRequest(`https://games.roblox.com/v1/games/${String(gameId)}/servers/Public?limit=100`, httpOpt).then(response => {
         return response.body
     })
