@@ -45,6 +45,9 @@ async function isPlayerOnline(userId){
             return false
         }
     })
+    .catch(err => {
+        console.log("Presence Error ", err)
+    })
     return userPresence
 }
 
@@ -82,6 +85,9 @@ module.exports = async (gameId, targetPlayer) => {
                 foundThumbnails.push(data.imageUrl)
             }
         }
+    })
+    .catch(err => {
+        console.log("Thumbnails Error ", err)
     })
     //-- Matching to the target.
     let matches = 0
