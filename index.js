@@ -38,7 +38,7 @@ async function getGroupUsers(groupId){
             finished = true
         })
     }
-    addMembers(body.groupId)
+    addMembers(groupId)
     checkingInterval = setInterval(function(){
         if(finished === true){
             clearInterval(checkingInterval)
