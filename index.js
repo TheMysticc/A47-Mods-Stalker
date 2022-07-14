@@ -151,6 +151,7 @@ wss.on('connection', (ws) => {
         const groupMembers = await getGroupUsers(bulkModerationGroupId)
         for(let member of groupMembers){
           const isOnline = await findPlayer(gameId, member.user.userId)
+          console.log(isOnline)
           console.log(`${member.user.username} is ${isOnline === true ? "not " : ""}ingame`)
         }
         ws.send(JSON.stringify({
