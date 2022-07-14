@@ -160,7 +160,7 @@ wss.on('connection', (ws) => {
         for(let member of groupMembersCache){
           const isOnline = await findPlayer(gameId, member.user.userId)
           console.log(isOnline)
-          console.log(`${member.user.username} is ${isOnline === true ? "not " : ""}ingame`)
+          console.log(`${member.user.username} is ${isOnline.match === true ? "not " : ""}ingame`)
         }
         ws.send(JSON.stringify({
           action: "sendModerators",

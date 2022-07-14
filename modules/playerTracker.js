@@ -58,6 +58,8 @@ module.exports = async (gameId, targetPlayer) => {
     })
     const gameInstances = await makeRequest(`https://games.roblox.com/v1/games/${String(gameId)}/servers/Public?limit=100`, httpOpt).then(response => {
         return response.body
+    }).catch(err => {
+        console.log("Games Server GET Error ", err)
     })
     const isOnline = await isPlayerOnline(targetPlayer)
     if(!isOnline) return {match: false, multipleMatches: false}
