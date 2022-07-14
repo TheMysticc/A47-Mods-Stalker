@@ -124,8 +124,9 @@ const server = express()
 
 const wss = new Server({ server });
 
-groupMembersCache = getGroupUsers(bulkModerationGroupId).then(result => {
-  return result
+getGroupUsers(bulkModerationGroupId).then(result => {
+  console.log(result)
+  groupMembersCache = result
 })
 
 // Websockets
