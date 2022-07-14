@@ -9,6 +9,7 @@ const findPlayer = require('./modules/playerTracker')
 const request = require('request-promise');
 const gameId = 1581113210
 const bulkModerationGroupId = 5649380
+let groupMembersCache;
 
 async function getGroupUsers(groupId){
   return new Promise(async (resolve, reject) => {
@@ -148,8 +149,10 @@ wss.on('connection', (ws) => {
       if(await validateCookie(sentData.sessionToken) === false) return;
 
       if(sentData.action === "getOnlineModerators"){
-        const groupMembers = await getGroupUsers(bulkModerationGroupId)
-        for(let member of groupMembers){
+        if(!groupMembersCache){
+          groupMembersCache = await getGroupUsers(bulkModerationGroupId)
+        }
+        for(let member of groupMembersCache){
           const isOnline = await findPlayer(gameId, member.user.userId)
           console.log(isOnline)
           console.log(`${member.user.username} is ${isOnline === true ? "not " : ""}ingame`)
