@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5636
 const clients = new Map();
 const cookieParser = require('cookie-parser')
 const findPlayer = require('./modules/playerTracker')
+const request = require('request-promise');
 const gameId = 1581113210
 const bulkModerationGroupId = 5649380
 
