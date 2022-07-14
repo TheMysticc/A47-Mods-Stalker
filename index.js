@@ -5,6 +5,48 @@ const { Server } = require('ws');
 const PORT = process.env.PORT || 5636
 const clients = new Map();
 const cookieParser = require('cookie-parser')
+const findPlayer = require('./modules/playerTracker')
+const gameId = 1581113210
+const bulkModerationGroupId = 5649380
+
+async function getGroupUsers(groupId){
+  return new Promise(async (resolve, reject) => {
+    let responseData = []
+    let finished = false
+    let checkingInterval;
+    let pageCursorsViewed = 0
+    async function addMembers(groupId, cursor){
+        request(`https://groups.roblox.com/v1/groups/${groupId}/users?sortOrder=Asc&limit=100${cursor !== undefined ? `&cursor=${cursor}` : ``}`, {
+            method: "GET",
+            headers: {
+            "Content-Type": "application/json",
+            },
+        }).then(data => {
+            const parsedData = JSON.parse(data)
+            for(let user of parsedData.data){
+                responseData.push(user)
+            }
+            if(parsedData.nextPageCursor !== null && pageCursorsViewed < 4){
+                addMembers(groupId, parsedData.nextPageCursor)
+                pageCursorsViewed++
+            } else {
+                finished = true
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            finished = true
+        })
+    }
+    addMembers(body.groupId)
+    checkingInterval = setInterval(function(){
+        if(finished === true){
+            clearInterval(checkingInterval)
+            resolve(responseData)
+        }
+    },100)
+  })
+}
 
 
 dotenv.config();
@@ -70,6 +112,7 @@ const server = express()
     return res.send(req.cookies)
   })
   .get('/', async function (req, res, next) {
+    const isOnline = findPlayer()
     res.render(`pages/index`);
   })
   .use(function (err, req, res, next) {
@@ -103,80 +146,16 @@ wss.on('connection', (ws) => {
 
       if(await validateCookie(sentData.sessionToken) === false) return;
 
-      async function keyReplace(key){
-        let newString;
-        for(let originalLetter of Object.keys(dictionary)){
-          if(key === originalLetter){
-            const capitalLetter = new RegExp(String(originalLetter), "g")
-            newString = String(key).replace(capitalLetter, String(dictionary[originalLetter]))
-            return newString
-          } else if(key === (originalLetter.toLowerCase())){
-            const lowercaseLetter = new RegExp((String(originalLetter).toLowerCase()), "g")
-            newString = String(key).replace(lowercaseLetter, `${String(dictionary[originalLetter])}-.`)
-            return newString
-          }
-        }
-        return false
-      }
+      if(sentData.action === "getOnlineModerators"){
+        const groupMembers = await getGroupUsers(bulkModerationGroupId)
+        console.log(groupMembers[0])
+        for(let member of groupMembers){
 
-      async function decrypt(key){
-        let newString;
-        for(let originalLetter of Object.keys(dictionary)){
-          if(key === originalLetter){
-            const capitalLetter = new RegExp(String(originalLetter), "g")
-            newString = String(key).replace(capitalLetter, String(dictionary[originalLetter]))
-            return newString
-          } else if(key === (originalLetter.toLowerCase())){
-            const lowercaseLetter = new RegExp((String(originalLetter).toLowerCase()), "g")
-            newString = String(key).replace(lowercaseLetter, `${String(dictionary[originalLetter])}-.`)
-            return newString
-          }
         }
-        return false
-      }
-
-      if(sentData.action === "Encrypt"){
-        const textToConvert = String(sentData.data)
-        const convertedString = []
-        if(textToConvert){
-          const noSpaces = new RegExp(" ", "g")
-          let stringLength = textToConvert.length
-          await Array.from(Array(stringLength)).map(async (_, i) => {
-            const partToView = textToConvert.slice(i, (i+1))
-            const isConverted = await keyReplace(partToView)
-            if(isConverted === false){
-              convertedString.push(partToView)
-            } else {
-              convertedString.push(isConverted)
-            }
-          });
-          const finalString = convertedString.join("")
-          //const finalString = checkForSpacesStr.replace(noSpaces, `_`)
-          ws.send(JSON.stringify({
-            action: "updateResult",
-            data: finalString
-          }))
-        }
-      } else if(sentData.action === "Decrypt"){
-        const textToConvert = String(sentData.data)
-        if(textToConvert){
-          let newString = textToConvert
-          
-          for(let originalLetter of Object.keys(dictionary)){
-            if(newString.indexOf(dictionary[originalLetter]) !== -1){
-              const capitalLetter = new RegExp(String(dictionary[originalLetter]), "g")
-              newString = String(newString).replace(capitalLetter, String(originalLetter))
-            }
-            if(newString.indexOf((originalLetter + `-.`)) !== -1){
-              const lowercaseLetter = new RegExp(`${(String(originalLetter))}-.`, "g")
-              newString = newString.replace(lowercaseLetter, `${String(originalLetter).toLowerCase()}`)
-            }
-          }
-          ws.send(JSON.stringify({
-            action: "updateResult",
-            data: newString
-          }))
-        }
+        ws.send(JSON.stringify({
+          action: "sendModerators",
+          data: ""
+        }))
       }
     }
 
